@@ -1,11 +1,11 @@
 import forge from 'node-forge';
 
-const { publicKey, privateKey } = forge.rsa.generateKeyPair(2048);
+const { publicKey, privateKey } = forge.pki.rsa.generateKeyPair(2048);
 
 const publicKeyPem = forge.pki.publicKeyToPem(publicKey);
 const privateKeyPem = forge.pki.privateKeyToPem(privateKey);
 
-const decrypt = (encryptedData) => {
+const decrypt = (encryptedData: string) => {
     const encryptedBytes = forge.util.decode64(encryptedData);
     const decryptedData = privateKey.decrypt(encryptedBytes, 'RSA-OAEP', {
             md: forge.md.sha256.create(),
