@@ -1,15 +1,17 @@
 import express from 'express';
-import service from '../services/user-status';
-import ParamRequest from '../types/request';
+import userService from '../services/user-status';
+import log from '../utils/log';
 
 const router = express.Router();
 
 router.post('/count-steps', async (req: ParamRequest, res, next) => {
     if(req.user) {
-        await service.countSteps(req.user.userId);
+        await userService.countSteps(req.user.userId);
+        await userService.gainDistance(req.user.userId, req.body.distance);
+        log({level: 'info', message: '200: successfully', file: '/routes/user-status', service: '/count-steps', req: req});
         res.status(200).send();
     } else {
-        console.error("count-steps: no user data", req);
+        log({level: 'info', message: '400: failed', file: '/routes/user-status', service: '/count-steps', req: req});
         res.status(400).send();
     }
 });
