@@ -3,7 +3,7 @@ import GAME from "../config/game";
 const getLevel = (exp: number): number => {
     const a = GAME.EXP_PARAM_A;
     const b = GAME.EXP_PARAM_B;
-    const c = GAME.EXP_PARAM_C;
+    const c = GAME.EXP_PARAM_C - exp;
 
     const d = b * b - 4 * a * c;
     if (d < 0) {
@@ -68,8 +68,7 @@ const getAchievementProgress = (achvId: number, userParam: UserParam): number =>
       default:
         break;
     }
-
     return a >= b ? 100 : Math.floor((a / b) * 100);
 }
 
-export { getLevel, getExpLimit }
+export { getLevel, getExpLimit, getExpLimitList }

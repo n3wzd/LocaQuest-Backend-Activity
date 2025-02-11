@@ -1,7 +1,7 @@
-import jwt from '../utils/jwt';
-import axios from '../utils/axios';
-import crypto from '../utils/crypto';
-import { initRedis } from '../utils/redis';
+import jwt from '../libs/jwt';
+import axios from '../libs/axios';
+import crypto from '../libs/crypto';
+import { initRedis } from '../libs/redis';
 import log from '../utils/log';
 import { produceUserParamGain } from '../services/produce';
 import KAFKA, { KAFKA_SYNC_PERIOD } from '../config/kafka';

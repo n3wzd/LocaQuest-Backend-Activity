@@ -1,5 +1,4 @@
 import { Kafka, Message } from 'kafkajs';
-import log from './log';
 
 const kafka = new Kafka({
   clientId: process.env.NODEJS_KAFKA_CLIENT_ID,

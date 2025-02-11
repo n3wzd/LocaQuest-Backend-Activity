@@ -1,7 +1,7 @@
-import kafka from "../utils/kafka";
+import kafka from "../libs/kafka";
 import KAFKA from "../config/kafka";
 import log from "../utils/log";
-import userService from "./user-status";
+import userService from "./user-status-delta";
 
 interface Param {
   steps: number;
@@ -9,7 +9,7 @@ interface Param {
   distance: number;
 }
 
-const produceUserParamGain = async () => {
+export const produceUserParamGain = async () => {
     const topic = KAFKA.topics.USER_PARAM_GAIN;
     if(topic === null) {
       log({level: 'error', message: 'topic is null', file: '/services/produce', service: 'produceUserParamGain'});
@@ -54,5 +54,3 @@ const produceUserParamGain = async () => {
       log({level: 'error', message: 'failed', file: '/services/produce', service: 'produceUserParamGain', error: error});
     }
 }
-
-export { produceUserParamGain };

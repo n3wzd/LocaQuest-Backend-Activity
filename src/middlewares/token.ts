@@ -1,8 +1,8 @@
-import { Express, Request, Response, NextFunction } from 'express';
-import jwt from '../utils/jwt';
+import { Express } from 'express';
+import jwt from '../libs/jwt';
 import log from '../utils/log';
 
-const setTokenMiddleware = (app: Express) => {
+export const setTokenMiddleware = (app: Express) => {
     app.use(async (req: ParamRequest, res, next) => {
         const authHeader = req.headers['authorization'];
         if (!authHeader) {
@@ -37,13 +37,3 @@ const setTokenMiddleware = (app: Express) => {
         }
       });
 }
-
-const setErrorHandlingMiddleware = (app: Express) => {
-  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    console.error(err.stack);
-    log({level: 'error', message: 'server error', file: '/services/middleware', service: 'setErrorHandlingMiddleware', error: err});
-    res.status(500).send();
-  });
-}
-
-export { setTokenMiddleware, setErrorHandlingMiddleware }

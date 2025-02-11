@@ -5,9 +5,15 @@ declare global {
     userId: string;
     name: string;
   }
-  
+
   interface ParamRequest extends Request {
     user?: { userId: string; name: string };
+  }
+  
+  interface UserParam {
+    steps: number;
+    exp: number;
+    distance: number;
   }
 }
 

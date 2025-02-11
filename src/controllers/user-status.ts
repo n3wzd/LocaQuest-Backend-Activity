@@ -1,5 +1,5 @@
 import express from 'express';
-import userService from '../services/user-status';
+import userService from '../services/user-status-delta';
 import log from '../utils/log';
 
 const router = express.Router();

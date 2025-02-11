@@ -1,15 +1,4 @@
-import pino from 'pino';
-import fs from 'fs';
-import ParamRequest from '../types/request';
-
-const streams = [
-  { stream: process.stdout },
-  { stream: fs.createWriteStream('./log/logfile.log', { flags: 'a' }) }
-];
-
-const logger = pino({
-  level: 'debug',
-}, pino.multistream(streams));
+import logger from '../libs/log';
 
 interface LogParams {
   level: 'debug' | 'info' | 'error';

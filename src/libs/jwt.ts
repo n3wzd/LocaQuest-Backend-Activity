@@ -1,5 +1,4 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import log from './log';
+import jwt from 'jsonwebtoken';
 
 let tokenKey: Buffer<ArrayBuffer> | null = null;
 
