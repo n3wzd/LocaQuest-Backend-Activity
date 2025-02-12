@@ -1,6 +1,5 @@
-const KEY_BASE_USER_STATUS = "USER_STATUS";
-
-const USER_STATUS = (userId: string) => KEY_BASE_USER_STATUS + userId;
+const USER_STATUS = (userId: string) => "USER_STATUS_" + userId;
+const USER_ACHIEVEMENT = (userId: string) => "USER_ACHIEVEMENT_" + userId;
 
 export default { 
     KEY: {
@@ -8,6 +7,7 @@ export default {
         USER_DELTA_DISTANCE: "USER_DELTA_DISTANCE",
         USER_DELTA_EXP: "USER_DELTA_EXP",
         USER_STATUS: USER_STATUS,
+        USER_ACHIEVEMENT: USER_ACHIEVEMENT,
     },
     FIELD: {
         USER_STATUS: {

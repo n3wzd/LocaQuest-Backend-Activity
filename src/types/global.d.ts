@@ -16,6 +16,14 @@ declare global {
     distance: number;
   }
 
+  interface Achievement {
+    achvId: number;
+    name: string;
+    desc: string;
+    progress: number;
+    achievedAt: string;
+  }
+
   type HttpResopnseCallback = (data: any, status: number) => void;
 }
 

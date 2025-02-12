@@ -1,5 +1,6 @@
-import redis from '../libs/redis';
-import REDIS from '../config/redis';
+import redis from '../../libs/redis';
+import REDIS from '../../config/redis';
+import userStatusService from './user-status';
 
 const setSteps = async (userId: string, value: string) => {
     await redis.hSet(REDIS.KEY.USER_DELTA_STEPS, userId, value)
@@ -55,22 +56,21 @@ const delExp = async () => {
 const countSteps = async (userId: string) => {
     const value = await getSteps(userId);
     await setSteps(userId, String(value + 1));
+    await userStatusService.addParam(userId, 'STEPS', 1);
     console.debug(`${userId} steps: ${value + 1}`);
-
-    await gainExp(userId, 10);
 }
 
 const gainDistance = async (userId: string, distance: number) => {
     const value = await getDistance(userId);
     await setDistance(userId, String(value + distance));
+    await userStatusService.addParam(userId, 'DISTANCE', distance);
     console.debug(`${userId} distance: ${value + distance}`);
-
-    await gainExp(userId, distance * 20);
 }
 
 const gainExp = async (userId: string, exp: number) => {
     const value = await getExp(userId);
     await setExp(userId, String(value + exp));
+    await userStatusService.addParam(userId, 'EXP', exp);
     console.debug(`${userId} exp: ${value + exp}`);
 }
 

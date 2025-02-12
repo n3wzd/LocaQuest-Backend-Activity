@@ -1,6 +1,6 @@
 import GAME from "../config/game";
 
-const getLevel = (exp: number): number => {
+export const getLevel = (exp: number): number => {
     const a = GAME.EXP_PARAM_A;
     const b = GAME.EXP_PARAM_B;
     const c = GAME.EXP_PARAM_C - exp;
@@ -13,7 +13,7 @@ const getLevel = (exp: number): number => {
     return Math.floor((-b + Math.sqrt(d)) / (2 * a)) + 1;
 }
 
-const getExpLimit = (level: number): number => {
+export const getExpLimit = (level: number): number => {
     const a = GAME.EXP_PARAM_A;
     const b = GAME.EXP_PARAM_B;
     const c = GAME.EXP_PARAM_C;
@@ -22,7 +22,7 @@ const getExpLimit = (level: number): number => {
     return Math.floor(a * Math.pow(level, 2) + b * level + c);
 }
 
-const getExpLimitList = (): number[] => {
+export const getExpLimitList = (): number[] => {
     const expLimitList: number[] = [0];
     const maxLevel = GAME.EXP_PARAM_A;
     
@@ -33,7 +33,7 @@ const getExpLimitList = (): number[] => {
     return expLimitList;
 }
 
-const getAchievementProgress = (achvId: number, userParam: UserParam): number => {
+export const getAchievementProgress = (achvId: number, userParam: UserParam) => {
     let a = 0, b = 1;
 
     switch (achvId) {
@@ -70,5 +70,3 @@ const getAchievementProgress = (achvId: number, userParam: UserParam): number =>
     }
     return a >= b ? 100 : Math.floor((a / b) * 100);
 }
-
-export { getLevel, getExpLimit, getExpLimitList }

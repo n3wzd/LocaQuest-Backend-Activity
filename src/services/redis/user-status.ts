@@ -1,6 +1,6 @@
 
-import redis from '../libs/redis';
-import REDIS from '../config/redis';
+import redis from '../../libs/redis';
+import REDIS from '../../config/redis';
 
 type FieldName = "STEPS" | "DISTANCE" | "EXP";
 
@@ -21,14 +21,10 @@ const getParam = async (userId: string, field: FieldName) => {
     return Number.isNaN(value) ? 0 : value;
 }
 
-const getParamAll = async (userId: string) => {
-    return redis.hGetAll(REDIS.KEY.USER_STATUS(userId));
-}
-
-const delParam = async (userId: string) => {
-    await redis.del(REDIS.KEY.USER_STATUS(userId));
+const addParam = async (userId: string, field: FieldName, value: number) => {
+    setParam(userId, field, String(await getParam(userId, field) + value));
 }
 
 export default { 
-    setParam, getParam, getParamAll, delParam,
+    setParam, getParam, addParam
 };

@@ -4,7 +4,7 @@ interface LogParams {
   level: 'debug' | 'info' | 'error';
   message: string;
   file: string;
-  service: string;
+  service?: string;
   req?: ParamRequest;
   error?: unknown;
 }
@@ -14,7 +14,7 @@ const log = ({level, message, file, service, req, error}: LogParams) => {
   logger[level](logObject);
 };
 
-const createLogObject = (level: string, message: string, file: string, service: string, req: ParamRequest | undefined, error: unknown | undefined) => {
+const createLogObject = (level: string, message: string, file: string, service: string | undefined, req: ParamRequest | undefined, error: unknown | undefined) => {
   return {
     level: level,
     timestamp: new Date(),

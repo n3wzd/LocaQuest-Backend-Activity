@@ -1,13 +1,7 @@
 import kafka from "../libs/kafka";
 import KAFKA from "../config/kafka";
 import log from "../utils/log";
-import userService from "./user-status-delta";
-
-interface Param {
-  steps: number;
-  exp: number;
-  distance: number;
-}
+import userService from "./redis/user-status-delta";
 
 export const produceUserParamGain = async () => {
     const topic = KAFKA.topics.USER_PARAM_GAIN;
@@ -16,17 +10,17 @@ export const produceUserParamGain = async () => {
       return;
     }
 
-    const userMap = new Map<string, Param>();
+    const userMap = new Map<string, UserParam>();
     const stepsMap = await userService.getStepsAll();
     const distanceMap = await userService.getDistanceAll();
     const expMap = await userService.getExpAll();
     try {
-      const updateUserMap = (map: Record<string, string>, key: keyof Param) => {
+      const updateUserMap = (map: Record<string, string>, key: keyof UserParam) => {
         for (const userId in map) {
           if (!userMap.has(userId)) {
             userMap.set(userId, { steps: 0, exp: 0, distance: 0 });
           }
-          const param = userMap.get(userId) as Param;
+          const param = userMap.get(userId) as UserParam;
           param[key] = Number(map[userId]);
           userMap.set(userId, param);
         }
