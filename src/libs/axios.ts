@@ -1,12 +1,29 @@
 import axios from 'axios';
 
-const makeUrl = (detailUrl: string) => {
-    return process.env.NODEJS_API_SERVER_CORE_URL + detailUrl;
+interface HTTPRequestParam {
+    url: string,
+    params: any,
+    header: any,
+    thenCallback: HttpResopnseCallback,
+    errorCallback: HttpResopnseCallback,
 }
 
-const get = async (url: string, params = {}) => axios.get(makeUrl(url), { params: params })
+const request = async ({url, params, header, thenCallback, errorCallback, method}: HTTPRequestParam & { method: 'get' | 'post' }) => {
+    const response = method === 'get' ?
+            axios.get(url, { params: params, headers: header }) : 
+            axios.post(url, params, { headers: header } )
+    return response
+        .then((response) => thenCallback(response.data, response.status))
+        .catch((error) => errorCallback(error.response.data, error.response.status));
+}
 
-const post = async (url: string, body = {}) => axios.post(makeUrl(url), body)
+const get = async (params: HTTPRequestParam) => {
+    request({...params, method: 'get'});
+}
+
+const post = async (params: HTTPRequestParam) => {
+    request({...params, method: 'post'});
+}
 
 export default {
     get: get,

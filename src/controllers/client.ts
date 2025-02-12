@@ -5,7 +5,7 @@ import log from '../utils/log';
 
 const router = express.Router();
 
-router.post('/init', async (req, res, next) => {
+router.post('/init', async (req, res) => {
     const dto = {
         maxLevel: GAME.MAX_LEVEL,
         expLimitList: getExpLimitList()

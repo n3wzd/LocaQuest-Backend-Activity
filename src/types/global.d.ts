@@ -15,6 +15,8 @@ declare global {
     exp: number;
     distance: number;
   }
+
+  type HttpResopnseCallback = (data: any, status: number) => void;
 }
 
 export {};

@@ -2,13 +2,18 @@ import express from 'express';
 import http from 'http';
 import routesClient from './controllers/client';
 import routesUserStatus from './controllers/user-status';
-import initialize from './external/init';
 import { setTokenMiddleware } from './middlewares/token';
 import { setErrorHandlingMiddleware} from './middlewares/error-handler';
+import { initRedis } from './libs/redis';
+import { produceUserParamGain } from './services/produce';
+import { KAFKA_SYNC_PERIOD } from './config/kafka';
+import { initialize } from './api/init';
 
 const app = express();
 const server = http.createServer(app);
 
+initRedis();
+setInterval(produceUserParamGain, Number(KAFKA_SYNC_PERIOD));
 initialize();
 
 app.use(express.json());

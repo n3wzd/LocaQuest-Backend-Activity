@@ -4,7 +4,7 @@ import log from '../utils/log';
 
 const router = express.Router();
 
-router.post('/count-steps', async (req: ParamRequest, res, next) => {
+router.post('/count-steps', async (req: ParamRequest, res) => {
     if(req.user) {
         await userService.countSteps(req.user.userId);
         await userService.gainDistance(req.user.userId, req.body.distance);
