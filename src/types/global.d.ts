@@ -16,15 +16,23 @@ declare global {
     distance: number;
   }
 
+  interface UserStatistic extends UserParam {
+    userId: string;
+  }
+
   interface Achievement {
-    achvId: number;
+    achvId: string;
     name: string;
     desc: string;
-    progress: number;
+  }
+
+  interface UserAchievement extends Achievement {
     achievedAt: string;
   }
 
-  type HttpResopnseCallback = (data: any, status: number) => void;
+  interface UserAchievementClient extends UserAchievement {
+    progress: number;
+  }
 }
 
 export {};

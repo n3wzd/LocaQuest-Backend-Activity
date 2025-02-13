@@ -1,7 +1,7 @@
 import kafka from "../libs/kafka";
 import KAFKA from "../config/kafka";
 import log from "../utils/log";
-import userService from "./redis/user-status-delta";
+import { getDeltaStepsAll, getDeltaDistanceAll, getDeltaExpAll, delDeltaSteps, delDeltaDistance, delDeltaExp } from "./redis/user-status-delta";
 
 export const produceUserParamGain = async () => {
     const topic = KAFKA.topics.USER_PARAM_GAIN;
@@ -11,9 +11,9 @@ export const produceUserParamGain = async () => {
     }
 
     const userMap = new Map<string, UserParam>();
-    const stepsMap = await userService.getStepsAll();
-    const distanceMap = await userService.getDistanceAll();
-    const expMap = await userService.getExpAll();
+    const stepsMap = await getDeltaStepsAll();
+    const distanceMap = await getDeltaDistanceAll();
+    const expMap = await getDeltaExpAll();
     try {
       const updateUserMap = (map: Record<string, string>, key: keyof UserParam) => {
         for (const userId in map) {
@@ -39,10 +39,11 @@ export const produceUserParamGain = async () => {
         }
         messageList.push(JSON.stringify(message));
       });
+      console.debug(messageList);
       await kafka.produce(topic, messageList)
-      await userService.delSteps();
-      await userService.delDistance();
-      await userService.delExp();
+      await delDeltaSteps();
+      await delDeltaDistance();
+      await delDeltaExp();
       log({level: 'info', message: 'successfully', file: '/services/produce', service: 'produceUserParamGain'});
     } catch (error) {
       log({level: 'error', message: 'failed', file: '/services/produce', service: 'produceUserParamGain', error: error});

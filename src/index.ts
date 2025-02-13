@@ -8,6 +8,7 @@ import { initRedis } from './libs/redis';
 import { produceUserParamGain } from './services/produce';
 import { KAFKA_SYNC_PERIOD } from './config/kafka';
 import { initialize } from './api/init';
+import socketServer from './controllers/socket';
 
 const app = express();
 const server = http.createServer(app);
@@ -15,6 +16,7 @@ const server = http.createServer(app);
 initRedis();
 setInterval(produceUserParamGain, Number(KAFKA_SYNC_PERIOD));
 initialize();
+socketServer.start();
 
 app.use(express.json());
 setTokenMiddleware(app);
@@ -22,7 +24,7 @@ app.use('/user-status', routesUserStatus);
 app.use('/client', routesClient);
 setErrorHandlingMiddleware(app);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.NODEJS_SERVER_PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

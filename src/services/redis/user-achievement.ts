@@ -2,14 +2,14 @@
 import redis from '../../libs/redis';
 import REDIS from '../../config/redis';
 
-const addAchievement = async (userId: string, achvId: string) => {
-    await redis.hSet(REDIS.KEY.USER_ACHIEVEMENT(userId), achvId, "1");
+export const addUserAchievement = async (userId: string, achvId: string, achievedAt: string) => {
+    await redis.hSet(REDIS.KEY.USER_ACHIEVEMENT(userId), achvId, achievedAt);
 }
 
-const hasAchievement = async (userId: string, achvId: string) => {
+export const hasUserAchievement = async (userId: string, achvId: string) => {
     return await redis.hGet(REDIS.KEY.USER_ACHIEVEMENT(userId), achvId) ? true : false;
 }
 
-export default { 
-    addAchievement, hasAchievement
-};
+export const getUserAchievementAll = async (userId: string) => {
+    return await redis.hGetAll(REDIS.KEY.USER_ACHIEVEMENT(userId));
+}
