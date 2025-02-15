@@ -1,12 +1,16 @@
 import { WebSocketServer } from 'ws';
 import log from '../utils/log';
-import { countSteps, gainDistance, gainExp } from '../services/user-status';
+import { countSteps, createUserStatusData, gainDistance, gainExp } from '../services/user-status';
 import GAME from '../config/game';
-import { scanAchievable } from '../services/achievement';
+import { updateUserAchievement } from '../services/achievement';
 
 interface Request {
     userId: string,
     distance: number,
+}
+interface Reponse {
+    userStatus: UserStatus,
+    newAchvIdList: number[],
 }
 
 const wss = new WebSocketServer({ port: Number(process.env.NODEJS_WEBSOCKET_PORT ?? 8000) });
@@ -17,21 +21,17 @@ const start = () => wss.on('connection', (ws) => {
     ws.on('message', async (message: string) => {
         const data = JSON.parse(message) as Request;
         const userId = data.userId;
-        const deltaDist = data.distance;
-        const deltaExp = GAME.EXP_PER_STEPS + data.distance * GAME.EXP_PER_DISTANCE;
         await countSteps(userId);
-        await gainDistance(userId, deltaDist);
-        await gainExp(userId, deltaExp);
-        const newAchvIdList = await scanAchievable(userId);
+        await gainDistance(userId, data.distance);
+        await gainExp(userId, GAME.EXP_PER_STEPS + data.distance * GAME.EXP_PER_DISTANCE);
+        const newAchvIdList = await updateUserAchievement(userId);
 
-        const res = {
-            steps: 1,
-            distance: deltaDist,
-            exp: deltaExp,
-            achievementIdList: newAchvIdList,
+        const dto: Reponse = {
+            userStatus: await createUserStatusData(userId),
+            newAchvIdList: newAchvIdList,
         }
-        ws.send(JSON.stringify(res));
         log({level: 'info', message: '200: successfully', file: '/controllers/socket'});
+        ws.send(JSON.stringify(dto));
     });
 
     ws.on('close', () => {

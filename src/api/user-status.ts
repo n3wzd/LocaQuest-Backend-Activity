@@ -22,20 +22,21 @@ export const achieve = async (userId: string, achvId: string) => {
 }
 
 export const getUserStatus = async (userId: string) => {
-    interface UserAchievementData {
-        achvId: string,
-        achievedAt: string,
+    interface UserStatistic extends UserParam {
+        userId: string;
     }
     interface Response {
         userStatistic: UserStatistic;
-        achievementList: UserAchievementData[];
+        achievementList: UserAchievement[];
     }
     try {
         const response = await http.get({ url: `/user-status/all/${userId}` });
         const data: Response = response.data;
         
         for(const achv of data.achievementList) {
-            await addUserAchievement(userId, achv.achvId, achv.achievedAt);
+            if(achv.achievedAt) {
+                await addUserAchievement(userId, achv.achvId, achv.achievedAt);
+            }
         }
         await setUserParamAll(userId, {
             exp: data.userStatistic.exp,

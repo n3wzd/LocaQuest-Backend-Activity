@@ -1,13 +1,13 @@
 import { Request } from 'express';
 
 declare global {
-  interface User {
-    userId: string;
-    name: string;
-  }
-
   interface ParamRequest extends Request {
     user?: { userId: string; name: string };
+  }
+
+  interface UserData {
+    userId: string;
+    name: string;
   }
   
   interface UserParam {
@@ -16,22 +16,26 @@ declare global {
     distance: number;
   }
 
-  interface UserStatistic extends UserParam {
-    userId: string;
-  }
-
   interface Achievement {
     achvId: string;
     name: string;
     desc: string;
   }
 
-  interface UserAchievement extends Achievement {
-    achievedAt: string;
+  interface UserAchievement {
+    achvId: string,
+    achievedAt: string | undefined,
   }
 
-  interface UserAchievementClient extends UserAchievement {
-    progress: number;
+  interface UserAchievementListItem extends UserAchievement {
+    progress: number,
+  }
+
+  interface UserStatus extends UserParam {
+    level: number;
+    expCurTo: number;
+    expNextTo: number;
+    achievementList: UserAchievementListItem[],
   }
 }
 

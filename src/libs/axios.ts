@@ -7,7 +7,6 @@ interface HTTPRequestParam {
 }
 
 const request = async ({url, params, header, method}: HTTPRequestParam & { method: 'get' | 'post' | 'put' }) => {
-    let response;
     switch(method) {
         case 'get': return await axios.get(url, { params: params, headers: header });
         case 'put': return await axios.put(url, params, { headers: header });

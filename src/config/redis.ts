@@ -9,7 +9,6 @@ export default {
         USER_DELTA_EXP: "USER_DELTA_EXP",
         USER_STATUS: USER_STATUS,
         USER_ACHIEVEMENT: USER_ACHIEVEMENT,
-        ACHIEVEMENT: ACHIEVEMENT,
     },
     FIELD: {
         USER_STATUS: {
@@ -17,9 +16,5 @@ export default {
             DISTANCE: "DISTANCE",
             EXP: "EXP",
         },
-        ACHIEVEMENT: {
-            NAME: "NAME",
-            DESC: "DESC",
-        }
     }
 }

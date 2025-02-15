@@ -1,5 +1,7 @@
 import { getDeltaSteps, setDeltaSteps, getDeltaDistance, setDeltaDistance, getDeltaExp, setDeltaExp }  from './redis/user-status-delta';
-import { addUserParam } from './redis/user-status';
+import { addUserParam, getUserParamAll } from './redis/user-status';
+import { createUserAchievementList } from './achievement';
+import { getExpLimit, getExpNextTo, getLevel } from '../utils/game';
 
 export const countSteps = async (userId: string) => {
     const value = await getDeltaSteps(userId);
@@ -17,4 +19,19 @@ export const gainExp = async (userId: string, exp: number) => {
     const value = await getDeltaExp(userId);
     await setDeltaExp(userId, String(value + exp));
     await addUserParam(userId, 'exp', exp);
+}
+
+export const createUserStatusData = async (userId: string): Promise<UserStatus> => {
+    const params = await getUserParamAll(userId);
+    const exp = params.exp;
+    const level = getLevel(exp);
+    return {
+        steps: params.steps,
+        distance: params.distance,
+        exp: exp,
+        level: level,
+        expCurTo: getExpLimit(level),
+        expNextTo: getExpNextTo(exp),
+        achievementList: await createUserAchievementList(userId),
+    } 
 }
