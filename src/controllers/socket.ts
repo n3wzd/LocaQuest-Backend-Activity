@@ -21,17 +21,22 @@ const start = () => wss.on('connection', (ws) => {
     ws.on('message', async (message: string) => {
         const data = JSON.parse(message) as Request;
         const userId = data.userId;
-        await countSteps(userId);
-        await gainDistance(userId, data.distance);
-        await gainExp(userId, GAME.EXP_PER_STEPS + data.distance * GAME.EXP_PER_DISTANCE);
-        const newAchvIdList = await updateUserAchievement(userId);
 
-        const dto: Reponse = {
-            userStatus: await createUserStatusData(userId),
-            newAchvIdList: newAchvIdList,
+        if(data.distance <= 15) {
+            await countSteps(userId);
+            await gainDistance(userId, data.distance);
+            await gainExp(userId, GAME.EXP_PER_STEPS + data.distance * GAME.EXP_PER_DISTANCE);
+            const newAchvIdList = await updateUserAchievement(userId);
+
+            const dto: Reponse = {
+                userStatus: await createUserStatusData(userId),
+                newAchvIdList: newAchvIdList,
+            }
+            log({level: 'info', message: `200: successfully - ${dto}`, file: '/controllers/socket'});
+            ws.send(JSON.stringify(dto));
+        } else {
+            log({level: 'info', message: `400: failed - invalid distance. userId=${userId}, distance=${data.distance}`, file: '/controllers/socket'});
         }
-        log({level: 'info', message: '200: successfully', file: '/controllers/socket'});
-        ws.send(JSON.stringify(dto));
     });
 
     ws.on('close', () => {

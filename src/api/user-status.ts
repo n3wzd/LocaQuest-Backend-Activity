@@ -9,11 +9,11 @@ const errorHandelr = (error: any, service: string) => {
     log({level: 'error', message: `axios failed: ${error}`, file: filePath, service: service});
 }
 
-export const achieve = async (userId: string, achvId: string) => {
+export const achieve = async (userId: string, achvId: string, achievedAt: string) => {
     try {
         await http.post({
             url: "/user-status/achieve", 
-            params: { achvId: achvId, userId: userId },
+            params: { achvId: achvId, userId: userId, achievedAt: achievedAt },
         });
         log({level: 'info', message: 'successfully', file: filePath, service: 'achieve'});
     } catch(error) {

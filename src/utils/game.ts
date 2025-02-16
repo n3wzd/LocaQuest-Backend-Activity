@@ -7,9 +7,8 @@ export const getLevel = (exp: number) => {
 
   const d = b * b - 4 * a * c;
   if (d < 0) {
-    throw new Error("Invalid EXP value");
+    return 1;
   }
-  
   return Math.floor((-b + Math.sqrt(d)) / (2 * a)) + 1;
 }
 

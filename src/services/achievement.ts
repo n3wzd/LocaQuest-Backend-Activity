@@ -7,7 +7,7 @@ import GAME from '../config/game';
 const MAX_ACHIEVEMENT = 6;
 
 const canAchieve = async (userId: string, achvId: string, userParam: UserParam) => {
-    return await hasUserAchievement(userId, achvId) && getAchievementProgress(Number(achvId), userParam) === 100;
+    return !(await hasUserAchievement(userId, achvId)) && getAchievementProgress(Number(achvId), userParam) === 100;
 }
 
 export const updateUserAchievement = async (userId: string) => {
@@ -23,20 +23,21 @@ export const updateUserAchievement = async (userId: string) => {
 }
 
 export const achieveAchievement = async (userId: string, achvId: string) => {
-    await addUserAchievement(userId, achvId, (new Date()).toString());
-    await achieve(userId, String(achvId));
+    const achievedAt = (new Date()).toString();
+    await addUserAchievement(userId, achvId, achievedAt);
+    await achieve(userId, String(achvId), achievedAt);
 }
 
 export const createUserAchievementList = async (userId: string) => {
     const userAchvMap = await getUserAchievementAll(userId);
     const userParam = await getUserParamAll(userId);
     const res: UserAchievementListItem[] = [];
-    for (const achvId in userAchvMap) {
+    for(let achvId = 0; achvId <= MAX_ACHIEVEMENT; achvId++) {
         const achv = GAME.ACHIEVEMENT[Number(achvId)];
         if(achv) {
             res.push({
-                achvId: achvId,
-                achievedAt: userAchvMap.achvId,
+                achvId: String(achvId),
+                achievedAt: userAchvMap[String(achvId)],
                 progress: getAchievementProgress(Number(achvId), userParam),
             });
         }
