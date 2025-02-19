@@ -1,7 +1,7 @@
 import kafka from "../libs/kafka";
 import KAFKA from "../config/kafka";
 import log from "../utils/log";
-import { getDeltaStepsAll, getDeltaDistanceAll, getDeltaExpAll, updateKeyTimestamp, delOutdatedKey } from "./redis/user-status-delta";
+import { flushAndRetrieveAllData } from "./redis/user-status-delta";
 
 export const produceUserParamGain = async () => {
     const topic = KAFKA.topics.USER_PARAM_GAIN;
@@ -10,30 +10,14 @@ export const produceUserParamGain = async () => {
       return;
     }
 
-    const userMap = new Map<string, UserParam>();
-    const stepsMap = await getDeltaStepsAll();
-    const distanceMap = await getDeltaDistanceAll();
-    const expMap = await getDeltaExpAll();
-    updateKeyTimestamp();
+    const userMap = await flushAndRetrieveAllData();
     try {
-      const updateUserMap = (map: Record<string, string>, key: keyof UserParam) => {
-        for (const userId in map) {
-          if (!userMap.has(userId)) {
-            userMap.set(userId, { steps: 0, exp: 0, distance: 0 });
-          }
-          const param = userMap.get(userId) as UserParam;
-          param[key] = Number(map[userId]);
-          userMap.set(userId, param);
-        }
-      };
-      updateUserMap(stepsMap, 'steps');
-      updateUserMap(distanceMap, 'distance');
-      updateUserMap(expMap, 'exp');
-
       const messageList: string[] = [];
       userMap.forEach((value, key) => {
+        const [ userId, date ] = key.split(':');
         const message = {
-          userId: key,
+          userId: userId,
+          date: date,
           steps: value.steps,
           distance: value.distance,
           exp: value.exp,
@@ -41,8 +25,7 @@ export const produceUserParamGain = async () => {
         messageList.push(JSON.stringify(message));
       });
       console.debug(messageList);
-      await kafka.produce(topic, messageList)
-      await delOutdatedKey();
+      await kafka.produce(topic, messageList);
       log({level: 'info', message: 'successfully', file: '/services/produce', service: 'produceUserParamGain'});
     } catch (error) {
       log({level: 'error', message: 'failed', file: '/services/produce', service: 'produceUserParamGain', error: error});

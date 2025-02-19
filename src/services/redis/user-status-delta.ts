@@ -1,62 +1,82 @@
 import redis from '../../libs/redis';
 import REDIS from '../../config/redis';
 
-let TIMESTAMP = (new Date()).toString();
+let usedKeySet = new Set<string>();
+const TTL = 86400;
 const KEY_SET = {
-    DELTA_STEPS: () => REDIS.KEY.USER_DELTA_STEPS + TIMESTAMP,
-    DELTA_DISTANCE: () => REDIS.KEY.USER_DELTA_DISTANCE + TIMESTAMP,
-    DELTA_EXP: () => REDIS.KEY.USER_DELTA_EXP + TIMESTAMP,
+    DELTA_STEPS: (userId: string, date: string) => `${REDIS.KEY.USER_DELTA_STEPS}:${userId}:${date}`,
+    DELTA_DISTANCE: (userId: string, date: string) => `${REDIS.KEY.USER_DELTA_DISTANCE}:${userId}:${date}`,
+    DELTA_EXP: (userId: string, date: string) => `${REDIS.KEY.USER_DELTA_EXP}:${userId}:${date}`,
 }
-const outdatedKeyBuffer: string[] = [];
 
-export const setDeltaSteps = async (userId: string, value: string) => {
-    await redis.hSet(KEY_SET.DELTA_STEPS(), userId, value)
+const addData = async (key: string, value: number) => {
+    await redis.INCRBY(key, value);
+    await redis.expire(key, TTL);
+    usedKeySet.add(key);
 }
-  
-export const getDeltaSteps = async (userId: string) => {
-    const value = Number(await redis.hGet(KEY_SET.DELTA_STEPS(), userId) ?? 0);
+
+const getData = async (key: string) => {
+    const value = Number(await redis.get(key));
     return Number.isNaN(value) ? 0 : value;
 }
-  
-export const getDeltaStepsAll = async () => {
-    return redis.hGetAll(KEY_SET.DELTA_STEPS());
+
+export const addDeltaSteps = async (userId: string, date: string, value: number) => {
+    await addData(KEY_SET.DELTA_STEPS(userId, date), value);
 }
 
-export const setDeltaDistance = async (userId: string, value: string) => {
-    await redis.hSet(KEY_SET.DELTA_DISTANCE(), userId, value)
+export const getDeltaSteps = async (userId: string, date: string) => {
+    return await getData(KEY_SET.DELTA_STEPS(userId, date));
 }
 
-export const getDeltaDistance = async (userId: string) => {
-    const value = Number(await redis.hGet(KEY_SET.DELTA_DISTANCE(), userId) ?? 0);
-    return Number.isNaN(value) ? 0 : value;
-}
-  
-export const getDeltaDistanceAll = async () => {
-    return redis.hGetAll(KEY_SET.DELTA_DISTANCE());
+export const addDeltaDistance = async (userId: string, date: string, value: number) => {
+    await addData(KEY_SET.DELTA_DISTANCE(userId, date), value);
 }
 
-export const setDeltaExp = async (userId: string, value: string) => {
-    await redis.hSet(KEY_SET.DELTA_EXP(), userId, value)
+export const getDeltaDistance = async (userId: string, date: string) => {
+    return await getData(KEY_SET.DELTA_DISTANCE(userId, date));
 }
 
-export const getDeltaExp = async (userId: string) => {
-    const value = Number(await redis.hGet(KEY_SET.DELTA_EXP(), userId) ?? 0);
-    return Number.isNaN(value) ? 0 : value;
-}
-  
-export const getDeltaExpAll = async () => {
-    return redis.hGetAll(KEY_SET.DELTA_EXP());
+export const addDeltaExp = async (userId: string, date: string, value: number) => {
+    await addData(KEY_SET.DELTA_EXP(userId, date), value);
 }
 
-export const updateKeyTimestamp = () => {
-    outdatedKeyBuffer.push(KEY_SET.DELTA_DISTANCE());
-    outdatedKeyBuffer.push(KEY_SET.DELTA_STEPS());
-    outdatedKeyBuffer.push(KEY_SET.DELTA_EXP());
-    TIMESTAMP = (new Date()).toString();
+export const getDeltaExp = async (userId: string, date: string) => {
+    return await getData(KEY_SET.DELTA_EXP(userId, date));
 }
 
-export const delOutdatedKey = async () => {
-    for(const key of outdatedKeyBuffer) {
-        await redis.del(key);
+export const flushAndRetrieveAllData = async () => {
+    const oldKeySet = usedKeySet;
+    usedKeySet = new Set<string>();
+
+    const userMap = new Map<string, UserParam>();
+    for (const key of oldKeySet) {
+        const [ type, userId, date ] = key.split(':');
+        const userMapKey = `${userId}:${date}`;
+        if (!userMap.has(userMapKey)) {
+            userMap.set(userMapKey, { steps: 0, exp: 0, distance: 0 });
+        }
+        const updateRedisData = async (key: string) => {
+            const value = await getData(key);
+            await redis.INCRBY(key, value);
+            return value;
+        }
+        const param = userMap.get(userMapKey) as UserParam;
+        switch(type) {
+            case REDIS.KEY.USER_DELTA_STEPS: param.steps = await updateRedisData(key);
+            case REDIS.KEY.USER_DELTA_DISTANCE: param.distance = await updateRedisData(key);
+            case REDIS.KEY.USER_DELTA_EXP: param.exp = await updateRedisData(key);
+        }
+        userMap.set(userMapKey, param);
     }
+    const updateUserMap = (map: Record<string, string>, key: keyof UserParam) => {
+        for (const userId in map) {
+            if (!userMap.has(userId)) {
+                userMap.set(userId, { steps: 0, exp: 0, distance: 0 });
+            }
+            const param = userMap.get(userId) as UserParam;
+            param[key] = Number(map[userId]);
+            userMap.set(userId, param);
+        }
+    };
+    return userMap;
 }

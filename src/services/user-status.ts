@@ -1,23 +1,20 @@
-import { getDeltaSteps, setDeltaSteps, getDeltaDistance, setDeltaDistance, getDeltaExp, setDeltaExp }  from './redis/user-status-delta';
+import { getDeltaSteps, addDeltaSteps, getDeltaDistance, addDeltaDistance, getDeltaExp, addDeltaExp }  from './redis/user-status-delta';
 import { addUserParam, getUserParamAll } from './redis/user-status';
 import { createUserAchievementList } from './achievement';
 import { getExpLimit, getExpNextTo, getLevel } from '../utils/game';
 
-export const countSteps = async (userId: string) => {
-    const value = await getDeltaSteps(userId);
-    await setDeltaSteps(userId, String(value + 1));
+export const countSteps = async (userId: string, date: string) => {
+    const newValue = await addDeltaSteps(userId, date, 1);
     await addUserParam(userId, 'steps', 1);
 }
 
-export const gainDistance = async (userId: string, distance: number) => {
-    const value = await getDeltaDistance(userId);
-    await setDeltaDistance(userId, String(value + distance));
+export const gainDistance = async (userId: string, date: string, distance: number) => {
+    const newValue = await addDeltaDistance(userId, date, distance);
     await addUserParam(userId, 'distance', distance);
 }
 
-export const gainExp = async (userId: string, exp: number) => {
-    const value = await getDeltaExp(userId);
-    await setDeltaExp(userId, String(value + exp));
+export const gainExp = async (userId: string, date: string, exp: number) => {
+    const newValue = await addDeltaExp(userId, date, exp);
     await addUserParam(userId, 'exp', exp);
 }
 

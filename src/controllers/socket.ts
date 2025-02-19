@@ -7,6 +7,7 @@ import { updateUserAchievement } from '../services/achievement';
 interface Request {
     userId: string,
     distance: number,
+    date: string,
 }
 interface Reponse {
     userStatus: UserStatus,
@@ -21,11 +22,13 @@ const start = () => wss.on('connection', (ws) => {
     ws.on('message', async (message: string) => {
         const data = JSON.parse(message) as Request;
         const userId = data.userId;
+        const date = data.date;
+        const exp = GAME.EXP_PER_STEPS + data.distance * GAME.EXP_PER_DISTANCE;
 
         if(data.distance <= 15) {
-            await countSteps(userId);
-            await gainDistance(userId, data.distance);
-            await gainExp(userId, GAME.EXP_PER_STEPS + data.distance * GAME.EXP_PER_DISTANCE);
+            await countSteps(userId, date);
+            await gainDistance(userId, date, data.distance);
+            await gainExp(userId, date, exp);
             const newAchvIdList = await updateUserAchievement(userId);
 
             const dto: Reponse = {

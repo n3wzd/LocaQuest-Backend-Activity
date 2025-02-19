@@ -31,6 +31,11 @@ declare global {
     progress: number,
   }
 
+  interface UserStatistic extends UserParam {
+    userId: string;
+    statDate: string;
+  }
+
   interface UserStatus extends UserParam {
     level: number;
     expCurTo: number;

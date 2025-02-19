@@ -5,7 +5,7 @@ import { setUserParamAll } from '../services/redis/user-status';
 
 const filePath = '/api/user-status';
 
-const errorHandelr = (error: any, service: string) => {
+const errorHandler = (error: any, service: string) => {
     log({level: 'error', message: `axios failed: ${error}`, file: filePath, service: service});
 }
 
@@ -17,16 +17,13 @@ export const achieve = async (userId: string, achvId: string, achievedAt: string
         });
         log({level: 'info', message: 'successfully', file: filePath, service: 'achieve'});
     } catch(error) {
-        errorHandelr(error, 'achieve');
+        errorHandler(error, 'achieve');
     }
 }
 
 export const getUserStatus = async (userId: string) => {
-    interface UserStatistic extends UserParam {
-        userId: string;
-    }
     interface Response {
-        userStatistic: UserStatistic;
+        userStatisticList: UserStatistic[];
         achievementList: UserAchievement[];
     }
     try {
@@ -38,15 +35,21 @@ export const getUserStatus = async (userId: string) => {
                 await addUserAchievement(userId, achv.achvId, achv.achievedAt);
             }
         }
+        let expSum = 0, stepSum = 0, distanceSum = 0;
+        for(const stat of data.userStatisticList) {
+            expSum += stat.exp;
+            stepSum += stat.steps;
+            distanceSum += stat.distance;
+        }
         await setUserParamAll(userId, {
-            exp: data.userStatistic.exp,
-            steps: data.userStatistic.steps, 
-            distance:  data.userStatistic.distance
+            exp: expSum,
+            steps: stepSum, 
+            distance: distanceSum
         });
         log({level: 'info', message: 'successfully', file: filePath, service: 'getUserStatus'});
         return true;
     } catch(error) {
-        errorHandelr(error, 'getUserStatus');
+        errorHandler(error, 'getUserStatus');
         return false;
     }
 }
