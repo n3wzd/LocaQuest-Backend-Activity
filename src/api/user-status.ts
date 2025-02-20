@@ -21,16 +21,20 @@ export const achieve = async (userId: string, achvId: string, achievedAt: string
     }
 }
 
-export const getUserStatus = async (userId: string) => {
+export const userStatusStart = async (userId: string, date: string) => {
     interface Response {
         userStatisticList: UserStatistic[];
-        achievementList: UserAchievement[];
+        userAchievementList: UserAchievement[];
+        isAttend: boolean;
     }
     try {
-        const response = await http.get({ url: `/user-status/all/${userId}` });
+        const response = await http.post({ 
+            url: `/user-status/start`,
+            params: { userId: userId, date: date },
+        });
         const data: Response = response.data;
         
-        for(const achv of data.achievementList) {
+        for(const achv of data.userAchievementList) {
             if(achv.achievedAt) {
                 await addUserAchievement(userId, achv.achvId, achv.achievedAt);
             }
@@ -47,9 +51,9 @@ export const getUserStatus = async (userId: string) => {
             distance: distanceSum
         });
         log({level: 'info', message: 'successfully', file: filePath, service: 'getUserStatus'});
-        return true;
+        return data;
     } catch(error) {
         errorHandler(error, 'getUserStatus');
-        return false;
+        return null;
     }
 }
