@@ -57,7 +57,7 @@ export const flushAndRetrieveAllData = async () => {
         }
         const updateRedisData = async (key: string) => {
             const value = await getData(key);
-            await redis.INCRBY(key, value);
+            await redis.INCRBY(key, -value);
             return value;
         }
         const param = userMap.get(userMapKey) as UserParam;
@@ -68,15 +68,5 @@ export const flushAndRetrieveAllData = async () => {
         }
         userMap.set(userMapKey, param);
     }
-    const updateUserMap = (map: Record<string, string>, key: keyof UserParam) => {
-        for (const userId in map) {
-            if (!userMap.has(userId)) {
-                userMap.set(userId, { steps: 0, exp: 0, distance: 0 });
-            }
-            const param = userMap.get(userId) as UserParam;
-            param[key] = Number(map[userId]);
-            userMap.set(userId, param);
-        }
-    };
     return userMap;
 }

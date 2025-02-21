@@ -26,7 +26,7 @@ export const produceUserParamGain = async () => {
       });
       console.debug(messageList);
       await kafka.produce(topic, messageList);
-      log({level: 'info', message: 'successfully', file: '/services/produce', service: 'produceUserParamGain'});
+      log({level: 'info', message: `successfully: ${messageList.toString()}`, file: '/services/produce', service: 'produceUserParamGain'});
     } catch (error) {
       log({level: 'error', message: 'failed', file: '/services/produce', service: 'produceUserParamGain', error: error});
     }
