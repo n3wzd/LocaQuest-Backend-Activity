@@ -25,7 +25,7 @@ export const userStatusStart = async (userId: string, date: string) => {
     interface Response {
         userStatisticList: UserStatistic[];
         userAchievementList: UserAchievement[];
-        isAttend: boolean;
+        attended: boolean;
     }
     try {
         const response = await http.post({ 
