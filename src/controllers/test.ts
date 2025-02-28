@@ -1,12 +1,13 @@
 import express from 'express';
-import log from '../utils/log';
 import { userStatusStart } from '../api/user-status';
 import GAME from '../config/game';
+import { countSteps, gainDistance, gainExp } from '../services/user-status';
 
 const router = express.Router();
 
-router.post('/start', async (req: ParamRequest, res) => {
+router.post('/client/init', async (req, res) => {
     interface Request {
+        userId: string
         date: string,
     }
     interface Response {
@@ -15,25 +16,39 @@ router.post('/start', async (req: ParamRequest, res) => {
         userStatisticList: UserStatistic[],
         attended: boolean,
     }
-    if(req.user) {
-        const userId = req.user.userId;
+    if(req) {
         const data = req.body as Request;
+        const userId = req.body.userId;
         const output = await userStatusStart(userId, data.date);
         if(output) {
             const dto: Response = {
                 achievementList: GAME.ACHIEVEMENT,
                 ...output,
             }
-            log({level: 'info', message: '200: successfully', file: '/controllers/client', service: '/init', req: req});
             res.status(200).send(dto);
         } else {
-            log({level: 'info', message: '500: core server failed', file: '/controllers/client', service: '/init', req: req});
             res.status(500).send("초기화 실패!");
         }
     } else {
-        log({level: 'info', message: '400: failed', file: '/controllers/client', service: '/init', req: req});
         res.status(400).send("초기화 실패!");
     }
+});
+
+router.post('/gain-user-param', async (req, res) => {
+    interface Request {
+        userId: string
+        date: string,
+        distance: number,
+    }
+    const data = req.body as Request;
+    const userId = data.userId;
+    const date = data.date;
+    const exp = GAME.EXP_PER_STEPS + data.distance * GAME.EXP_PER_DISTANCE;
+
+    await countSteps(userId, date);
+    await gainDistance(userId, date, data.distance);
+    await gainExp(userId, date, exp);
+    res.status(200).send();
 });
 
 export default router;

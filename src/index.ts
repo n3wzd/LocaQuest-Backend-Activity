@@ -1,6 +1,7 @@
 import express from 'express';
 import http from 'http';
 import routesClient from './controllers/client';
+import routesTest from './controllers/test';
 import { setTokenMiddleware } from './middlewares/token';
 import { setErrorHandlingMiddleware} from './middlewares/error-handler';
 import { initRedis } from './libs/redis';
@@ -18,8 +19,13 @@ initialize();
 socketServer.start();
 
 app.use(express.json());
-setTokenMiddleware(app);
+if(process.env.NODEJS_ENV !== 'TEST') {
+  setTokenMiddleware(app);
+}
 app.use('/client', routesClient);
+if(process.env.NODEJS_ENV === 'TEST') {
+  app.use('/test', routesTest);
+}
 setErrorHandlingMiddleware(app);
 
 const PORT = process.env.NODEJS_SERVER_PORT || 3000;

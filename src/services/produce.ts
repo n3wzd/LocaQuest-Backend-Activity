@@ -24,7 +24,6 @@ export const produceUserParamGain = async () => {
         }
         messageList.push(JSON.stringify(message));
       });
-      console.debug(messageList);
       await kafka.produce(topic, messageList);
       log({level: 'info', message: `successfully: ${messageList.toString()}`, file: '/services/produce', service: 'produceUserParamGain'});
     } catch (error) {
